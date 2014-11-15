@@ -2,9 +2,6 @@ package websocket
 
 import (
 	"errors"
-
-	"honnef.co/go/js/dom"
-
 	"github.com/gopherjs/gopherjs/js"
 )
 
@@ -35,8 +32,11 @@ func (ws *WebSocket) OnClose(listener func(js.Object)) {
 	ws.Object.Set("onclose", listener)
 }
 
-func (ws *WebSocket) OnMessage(listener func(messageEvent *dom.MessageEvent)) {
-	wrapper := func(object js.Object) { listener(&dom.MessageEvent{BasicEvent: &dom.BasicEvent{Object: object}}) }
+func (ws *WebSocket) OnMessage(listener func(data []byte)) {
+	wrapper := func(object js.Object) {
+		buf  := js.Global.Get("Uint8Array").New(object.Get("data")).Interface().([]byte)
+		listener(buf)
+	}
 	ws.Object.Set("onmessage", wrapper)
 }
 
