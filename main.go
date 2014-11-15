@@ -20,6 +20,7 @@ type WebSocket struct {
 
 func New(url string) *WebSocket {
 	object := js.Global.Get("WebSocket").New(url)
+	object.Set("binaryType", "arraybuffer")
 	ws := &WebSocket{Object: object}
 	return ws
 }
