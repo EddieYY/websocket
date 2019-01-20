@@ -15,7 +15,7 @@ const (
 )
 
 type WebSocket struct {
-	js.Object
+	*js.Object
 }
 
 func New(url string) *WebSocket {
@@ -25,17 +25,17 @@ func New(url string) *WebSocket {
 	return ws
 }
 
-func (ws *WebSocket) OnOpen(listener func(js.Object)) {
+func (ws *WebSocket) OnOpen(listener func(*js.Object)) {
 	ws.Object.Set("onopen", listener)
 }
 
-func (ws *WebSocket) OnClose(listener func(js.Object)) {
+func (ws *WebSocket) OnClose(listener func(*js.Object)) {
 	ws.Object.Set("onclose", listener)
 }
 
 func (ws *WebSocket) OnMessage(listener func(data []byte)) {
 	wrapper := func(object js.Object) {
-		buf  := js.Global.Get("Uint8Array").New(object.Get("data")).Interface().([]byte)
+		buf := js.Global.Get("Uint8Array").New(object.Get("data")).Interface().([]byte)
 		listener(buf)
 	}
 	ws.Object.Set("onmessage", wrapper)
@@ -48,7 +48,7 @@ func (ws *WebSocket) Send(data string) (err error) {
 			return
 		}
 		if jsErr, ok := e.(*js.Error); ok && jsErr != nil {
-			println(jsErr.Object.Get("name").Str() == "InvalidStateError")
+			println(jsErr.Object.Get("name").String() == "InvalidStateError")
 			err = errors.New("InvalidStateError")
 		} else {
 			panic(e)
